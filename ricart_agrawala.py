@@ -22,9 +22,13 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
     num = 1
     last_req = num
     enters = []
+
+    router_sock.setblocking(0)
+    router_sock.settimeout(1)
     
     # event loopS
     while True:
+        # print("looping")
         if state == State.REQUESTING:
             if replies == len(peers):
                 # received all REPLY required to access CS
@@ -36,6 +40,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
         
         elif state == State.CS:
             now = time.time()
+            print(now - enters[-1])
             if now - enters[-1] > cs_time:
                 # time to exit cs
                 # exit CS
@@ -49,10 +54,11 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                 state = State.NCS
                 replies = 0
         
-        readable, _, _ = select.select([router_sock], [], [])
-        for sock in readable:
-            raw_data = sock.recvfrom(16)
-            sender, receiver, msg_type, ts = read_message(msg=raw_data[0])
+        # readable, _, _ = select.select([router_sock], [], [])
+        # for sock in readable:
+        try:
+            raw_data = router_sock.recv(16)
+            sender, receiver, msg_type, ts = read_message(msg=raw_data)
             print(f"Received {format_message(sender=sender, receiver=receiver, msg_type=msg_type, ts=ts)}")
         
             # upon receipt of REQUEST
@@ -77,3 +83,6 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                     for peer in peers:
                         req = create_message(sender=my_id, receiver=peer, msg_type=REQUEST, ts=num)
                         router_sock.sendall(req)
+        except Exception as e:
+            pass
+        time.sleep(1)
