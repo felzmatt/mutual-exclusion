@@ -6,6 +6,8 @@ import random
 from common import create_message, read_message, format_message
 from config import CONFIG
 
+from ricart_agrawala import ricart_agrawala
+
 
 def connect_router(router_host, router_port):
     sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -25,6 +27,7 @@ if __name__ == "__main__":
     router_sock.sendall(msg)
     
     num = 1
+    """
     while True:
 
         # if random.randint(0,100) > 50:
@@ -40,3 +43,5 @@ if __name__ == "__main__":
         raw_msg = create_message(sender=my_id, receiver=sender, msg_type=69, ts=num)
         
         time.sleep(2)
+        """
+    ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
