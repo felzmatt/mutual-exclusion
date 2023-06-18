@@ -3,7 +3,7 @@ import socket
 import time
 import random
 
-from common import create_message, read_message
+from common import create_message, read_message, format_message
 from config import CONFIG
 
 
@@ -14,10 +14,6 @@ def connect_router(router_host, router_port):
 
 def get_peers(my_id: int, num: int):
     return [i for i in range(1,num+1) if i != my_id]
-
-def format_message(sender: int, receiver: int, msg_type: int, ts: int) -> str:
-    return f"MSG: sender {sender}, receiver {receiver}, type {msg_type}, ts {ts}"
-
 
 if __name__ == "__main__":
     my_id = int(sys.argv[1])
