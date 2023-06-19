@@ -3,7 +3,7 @@ import select
 from enum import Enum
 from typing import List
 
-from common import create_message, read_message, format_message
+from common.common import create_message, read_message, format_message
 
 class State(Enum):
     NCS = 0

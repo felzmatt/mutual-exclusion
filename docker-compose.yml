@@ -1,0 +1,20 @@
+version: '3'
+services:
+  
+  master:
+    build:
+      context: ./
+      dockerfile: ./master/Dockerfile
+  
+  process:
+    build:
+      context: ./
+      dockerfile: ./process/Dockerfile
+    
+    environment:
+      - INDEX=${INDEX:-0}
+    entrypoint: /app/entrypoint.sh
+    depends_on:
+      - master
+    deploy:
+      replicas: 3

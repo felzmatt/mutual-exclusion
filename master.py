@@ -3,9 +3,9 @@ import socket
 import select
 import random
 
-from common import create_message, read_message
+from common.common import create_message, read_message
 
-from config import CONFIG
+from common.config import CONFIG
 
 def choose_elected():
     elected = set()
