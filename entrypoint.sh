@@ -16,5 +16,5 @@ INDEX=`dig -x $IP +short | sed 's/.*_\([0-9]*\)\..*/\1/'`
 # Hello I'm container 1 of 5 
 # echo "Hello I'm container $INDEX of $COUNT"
 
-python3 process.py $INDEX
+python3 -u process.py $INDEX
 

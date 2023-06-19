@@ -14,8 +14,8 @@ WORKDIR /app
 # copy dependencies
 COPY ../common /app/common
 
-# Copy executablese
+# Copy executables
 COPY ../master.py /app
 
 
-CMD ["python3", "master.py"]
+CMD ["python3", "-u", "master.py"]
