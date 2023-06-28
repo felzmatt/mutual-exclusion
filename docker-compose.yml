@@ -1,0 +1,32 @@
+version: '3'
+services:
+  cs:
+    build: ./cs
+    ports:
+      - 5000:5000
+    environment:
+      - NUM_PROC=${NUM_PROC}
+    
+  
+  master:
+    build:
+      context: ./
+      dockerfile: ./master/Dockerfile
+    environment:
+      - NUM_PROC=${NUM_PROC}
+    depends_on:
+      - cs
+  
+  process:
+    build:
+      context: ./
+      dockerfile: ./process/Dockerfile
+    
+    environment:
+      - INDEX=${INDEX:-0}
+      - NUM_PROC=${NUM_PROC}
+    entrypoint: /app/entrypoint.sh
+    depends_on:
+      - master
+    deploy:
+      replicas: ${NUM_PROC}

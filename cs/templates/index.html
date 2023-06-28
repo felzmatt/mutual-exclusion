@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="2">
+</head>
+<body>
+    <h1>Process Status</h1>
+    <p>Processes: <span id="processes"></span></p>
+    <p>Errors: <span id="errors"></span></p>
+
+    <script>
+        // Function to fetch the data from the server and update the values
+        function updateData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('processes').textContent = data.processes;
+                    document.getElementById('errors').textContent = data.errors;
+                });
+        }
+
+        // Call the function immediately to populate initial data
+        updateData();
+
+        // Set interval to call the function every 4 seconds
+        setInterval(updateData, 4000);
+    </script>
+</body>
+</html>

@@ -1,11 +1,12 @@
 import sys
+import os
 import socket
 import select
 import random
 
-from common import create_message, read_message
+from common.common import create_message, read_message
 
-from config import CONFIG
+from common.config import CONFIG
 
 def choose_elected():
     elected = set()
@@ -24,20 +25,20 @@ def create_listener(router_host: str, router_port: int):
 
 if __name__ == "__main__":
 
-    NUM = CONFIG["NUM_PROC"]
+    NUM = int(os.getenv("NUM_PROC"))
     master_sock = create_listener(router_host=CONFIG["ROUTER_HOST"], router_port=CONFIG["ROUTER_PORT"])
 
     print("ready")
 
     connections = []
-    while len(connections) < CONFIG["NUM_PROC"]:
+    while len(connections) < NUM:
         sock, addr = master_sock.accept()
         connections.append(sock)
 
     print("anonymous connected")
 
     processes = dict()
-    while len(processes) < CONFIG["NUM_PROC"]:
+    while len(processes) < NUM:
         readable, _, _ = select.select(connections, [], [])
         for sock in readable:
             raw_data = sock.recvfrom(16)
