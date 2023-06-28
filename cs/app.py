@@ -4,14 +4,27 @@ from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
 NUM = int(os.getenv("NUM_PROC"))
+DES_ACCESSES = int(os.getenv("DES_ACCESSES"))
 
+# state of critical section variables
 processesCS = [0 for i in range(NUM)]
+tot_accesses = [0 for i in range(NUM)]
 inside = 0
 errors = 0
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
+@app.route('/init')
+def init_data():
+    data = {
+        'num_processes': NUM,
+        'des_accesses': DES_ACCESSES,
+        'tot_accesses': list(tot_accesses)
+    }
+    return jsonify(data)
+
 
 @app.route('/data')
 def get_data():
@@ -20,7 +33,8 @@ def get_data():
 
     data = {
         'processes': list(processesCS),
-        'errors': errors
+        'errors': errors,
+        'tot_accesses': tot_accesses
     }
     return jsonify(data)
 
@@ -32,6 +46,7 @@ def enter_cs():
     data = request.form
     procID = data.get('procID')  # Access a specific value by key
     processesCS[int(procID) - 1] += 1
+    tot_accesses[int(procID) - 1] += 1
     inside += 1
     if inside > 1:
         errors += 1
