@@ -1,16 +1,30 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+
+from flask import Flask, render_template, request, jsonify, send_file
+
+from events import EventType, Event, EventRegister
+
+def generate_timestamp():
+    current_datetime = datetime.now()
+    timestamp = current_datetime.strftime("%Y%m%d_%H%M")
+    return timestamp
 
 app = Flask(__name__)
 
 NUM = int(os.getenv("NUM_PROC"))
 DES_ACCESSES = int(os.getenv("DES_ACCESSES"))
 
+# This class contains data that will be flushed into a csv file for analysys
+events_register = EventRegister()
+
 # state of critical section variables
 processesCS = [0 for i in range(NUM)]
 tot_accesses = [0 for i in range(NUM)]
 inside = 0
 errors = 0
+
+result_file = f"{generate_timestamp()}_exp.csv"
 
 @app.route('/', methods=['GET'])
 def index():
@@ -50,11 +64,13 @@ def enter_cs():
     inside += 1
     if inside > 1:
         errors += 1
-
-    # Handle the data as needed
-    # Perform any necessary processing or database operations
-    # Return an appropriate response
-
+        events_register.insert_event(
+            Event(evtype=EventType.ACCESS, procID=procID, anomaly=True)
+        )
+    else:
+        events_register.insert_event(
+            Event(evtype=EventType.ACCESS, procID=procID, anomaly=False)
+        )
     return "Entered the CS"
 
 @app.route('/leave_cs', methods=['POST'])
@@ -66,12 +82,14 @@ def leave_cs():
     procID = data.get('procID')  # Access a specific value by key
     processesCS[int(procID) - 1] -= 1
     inside -= 1
-
-    # Handle the data as needed
-    # Perform any necessary processing or database operations
-    # Return an appropriate response
-
     return "Left the CS"
+
+@app.route('/results_file')
+def download_results():
+    # flush the content of the event register into a csv file and send
+    # to the browser for download
+    pass
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
