@@ -18,12 +18,14 @@ def connect_router(router_host, router_port):
 def get_peers(my_id: int, num: int):
     return [i for i in range(1,num+1) if i != my_id]
 
+NUM = int(os.getenv("NUM_PROC"))
+
 if __name__ == "__main__":
     # print(os.environ.get("HOSTNAME"))
     # my_id = int(os.environ.get("HOSTNAME").split("_")[1])
     my_id = int(sys.argv[1])
     router_sock = connect_router(router_host=CONFIG["ROUTER_HOST"], router_port=CONFIG["ROUTER_PORT"])
-    peers = get_peers(my_id=my_id, num=CONFIG["NUM_PROC"])
+    peers = get_peers(my_id=my_id, num=NUM)
 
     # make master know about me
     msg = create_message(sender=my_id, receiver=0, msg_type=0, ts=0)

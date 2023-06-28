@@ -1,8 +1,11 @@
+import os
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-processesCS = [0 for i in range(3)]
+NUM = int(os.getenv("NUM_PROC"))
+
+processesCS = [0 for i in range(NUM)]
 inside = 0
 errors = 0
 
