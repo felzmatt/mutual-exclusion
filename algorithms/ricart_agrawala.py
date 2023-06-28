@@ -2,6 +2,7 @@ import time
 import select
 from enum import Enum
 from typing import List
+import requests
 
 from common.common import create_message, read_message, format_message
 
@@ -35,8 +36,10 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                 # access cs
                 # TODO: make access call
                 print("I AM ENTERING CS")
-                state = State.CS
-                enters.append(time.time())
+                r = requests.post("http://cs:5000/enter_cs",data={"procID":my_id})
+                if r.status_code == 200:
+                    state = State.CS
+                    enters.append(time.time())
         
         elif state == State.CS:
             now = time.time()
@@ -46,6 +49,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                 # exit CS
                 # TODO: make exit call
                 print("I AM LEAVING CS")
+                r = requests.post("http://cs:5000/leave_cs",data={"procID":my_id})
                 # send replies
                 for req in Q:
                     reply = create_message(sender=my_id, receiver=req[1], msg_type=REPLY, ts=num)

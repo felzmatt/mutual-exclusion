@@ -11,6 +11,7 @@ WORKDIR /app
 # Install the Python dependencies
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && apt-get install -y dnsutils net-tools
+RUN pip install requests
 
 
 # copy dependencies
