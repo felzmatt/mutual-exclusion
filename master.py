@@ -11,7 +11,7 @@ from common.config import CONFIG
 
 def choose_elected():
     elected = set()
-    k = random.randint(1, NUM)
+    k = random.randint(2, 2)
     while len(elected) < k:
         e = random.randint(1, NUM)
         if e not in elected:

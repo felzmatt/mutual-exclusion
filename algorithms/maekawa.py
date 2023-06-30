@@ -63,11 +63,12 @@ REL = 30
 ENTER_CS = 99
 
 def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
-    replies = 0
+    
     # slides variables
     state = State.RELEASED
     voted = False
     V = get_voting_set(my_id, peers)
+    # print(V)
     # print(V)
     replies = 0
     pending = []
@@ -82,15 +83,15 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
         # print("looping")
         if state == State.WANTED:
             # print("I want to access CS")
-            if replies == len(V) - 1:
+            if replies == len(V) - 1 + 1:
                 # received all REPLY required to access CS
                 # access cs
                 # TODO: make access call
                 print("I AM ENTERING CS")
                 r = requests.post("http://cs:5000/enter_cs",data={"procID":my_id})
-                if r.status_code == 200:
-                    state = State.HELD
-                    enters.append(time.time())
+                # if r.status_code == 200:
+                state = State.HELD
+                enters.append(time.time())
         
         elif state == State.HELD:
             now = time.time()
@@ -105,7 +106,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
                 state = State.RELEASED
                 replies = 0
                 for peer in V:
-                    if peer != my_id:
+                    if True or peer != my_id:
                         rel = create_message(sender=my_id, receiver=peer, msg_type=REL, ts=0)
                         router_sock.sendall(rel)
 
@@ -153,7 +154,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
 
                     #print(f"mando a {peer}")
 
-                    if peer != my_id:
+                    if True or peer != my_id:
                         #print(f"Asking REQ to {peer}")
                         req = create_message(sender=my_id, receiver=peer, msg_type=REQ, ts=0)
                         #print(f"messaggio per {peer} creato")
