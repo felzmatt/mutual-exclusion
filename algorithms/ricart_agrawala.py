@@ -26,6 +26,8 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
 
     router_sock.setblocking(0)
     router_sock.settimeout(1)
+
+    
     
     # event loopS
     while True:

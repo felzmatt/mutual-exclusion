@@ -42,14 +42,14 @@ def get_voting_set(procID: int, peers: List[int]) -> Set[int]:
             row.append(processes[k])
             k  += 1
         matrix.append(row)
-    voting = set()
+    voting = list()
     proc_i = (procID - 1) // nsq
     proc_j = (procID-1) % nsq
     # print(i,j)
     for i in range(nsq):
         for j in range(nsq):
             if i == proc_i or j == proc_j:
-                voting.add(matrix[i][j])
+                voting.append(matrix[i][j])
     # print(matrix)
     return voting
 
@@ -57,8 +57,9 @@ def select_next(pending: List[int]) -> int:
     return pending.pop(0)
 
 
-REQUEST = 77
-REPLY = 88
+REQ = 10
+ACK = 20
+REL = 30
 ENTER_CS = 99
 
 def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
@@ -67,6 +68,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     state = State.RELEASED
     voted = False
     V = get_voting_set(my_id, peers)
+    # print(V)
     replies = 0
     pending = []
     
@@ -79,6 +81,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     while True:
         # print("looping")
         if state == State.WANTED:
+            # print("I want to access CS")
             if replies == len(V) - 1:
                 # received all REPLY required to access CS
                 # access cs
@@ -103,7 +106,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
                 replies = 0
                 for peer in V:
                     if peer != my_id:
-                        rel = create_message(sender=my_id, receiver=peer, msg_type=MSGType.REL, ts=0)
+                        rel = create_message(sender=my_id, receiver=peer, msg_type=REL, ts=0)
                         router_sock.sendall(rel)
 
 
@@ -115,28 +118,28 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
             sender, receiver, msg_type, ts = read_message(msg=raw_data)
 
             # don't print messages from master
-            if sender != 0:
+            if True:
                 print(f"Received {format_message(sender=sender, receiver=receiver, msg_type=msg_type, ts=ts)}")
         
             # upon receipt of REQUEST
-            if msg_type == MSGType.REQ:
+            if msg_type == REQ:
                 if state == State.HELD or voted:
                     pending.append(sender)
                 else:
-                    ack = create_message(sender=my_id, receiver=sender, msg_type=MSGType.ACK, ts=0)
+                    ack = create_message(sender=my_id, receiver=sender, msg_type=ACK, ts=0)
                     router_sock.sendall(ack)
                     voted = True
             
             # upon receipt of ACK
-            elif msg_type == MSGType.ACK:
+            elif msg_type == ACK:
                 replies += 1
         
             # upon receipt of RELEASE
-            elif msg_type == MSGType.REL:
+            elif msg_type == REL:
                 if len(pending) > 0:
                     candidate = select_next(pending)
                     # pending.remove(candidate)
-                    ack = create_message(sender=my_id, receiver=candidate, msg_type=MSGType.ACK, ts=0)
+                    ack = create_message(sender=my_id, receiver=candidate, msg_type=ACK, ts=0)
                     router_sock.sendall(ack)
                     voted = True
                 else:
@@ -145,10 +148,17 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
             # upon receive ENTER_CS
             elif msg_type == ENTER_CS:
                 state = State.WANTED
+                #print(f"I miei vicini sono {V}")
                 for peer in V:
+
+                    #print(f"mando a {peer}")
+
                     if peer != my_id:
-                        req = create_message(sender=my_id, receiver=peer, msg_type=MSGType.REQ, ts=0)
+                        #print(f"Asking REQ to {peer}")
+                        req = create_message(sender=my_id, receiver=peer, msg_type=REQ, ts=0)
+                        #print(f"messaggio per {peer} creato")
                         router_sock.sendall(req)
+                        #print(f"fatto a {peer}")
         except Exception as e:
             pass
         time.sleep(1)

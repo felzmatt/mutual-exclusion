@@ -55,9 +55,10 @@ if __name__ == "__main__":
         # select guys who must enter cs
         now = time.time()
         if first or (now - orders[-1]) > 2.0:
-            print("Send orders to some processes")
+            
             first = False
             cs_elected = choose_elected()
+            print(f"Send orders to some processes {cs_elected}")
             for proc in cs_elected:
                 order = create_message(sender=0, receiver=proc, msg_type=99, ts=0)
                 processes[proc].sendall(order)
