@@ -26,6 +26,8 @@ class Event:
         Event.counter += 1
         self.logical_clock = Event.counter
         self.anomaly = anomaly
+    def tuplify(self):
+        return (self.procID, self.evtype, self.logical_clock, self.ts, self.humandate, self.anomaly)
 
 class EventRegister:
     def __init__(self):
@@ -40,6 +42,7 @@ class EventRegister:
         self.end = real_clock()
         self.humandate_end = datetime.datetime.fromtimestamp(self.end).strftime("%Y-%m-%d %H:%M:%S")
         self.total_time = self.end - self.start
+        print(self.cs_events)
     
     def write_on_csv(self, filepath: str):
         header = ["procID", "event_type", "cs_clock", "real_clock", "human_date", "anomaly"]
@@ -51,7 +54,7 @@ class EventRegister:
             writer.writerow([None, "START", 0, self.start, self.humandate_start, False])
 
             # write actual data
-            writer.writerows(self.cs_events)
+            writer.writerows([ev.tuplify() for ev in self.cs_events])
 
             # write closing
             writer.writerow([None, "END", Event.counter + 1, self.end, self.humandate_end, False])

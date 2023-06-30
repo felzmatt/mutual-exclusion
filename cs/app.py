@@ -15,6 +15,8 @@ app = Flask(__name__)
 NUM = int(os.getenv("NUM_PROC"))
 DES_ACCESSES = int(os.getenv("DES_ACCESSES"))
 
+DOWNLOAD = False
+
 # This class contains data that will be flushed into a csv file for analysys
 events_register = EventRegister()
 
@@ -48,7 +50,8 @@ def get_data():
     data = {
         'processes': list(processesCS),
         'errors': errors,
-        'tot_accesses': tot_accesses
+        'tot_accesses': tot_accesses,
+        'download': DOWNLOAD
     }
     return jsonify(data)
 
@@ -71,6 +74,9 @@ def enter_cs():
         events_register.insert_event(
             Event(evtype=EventType.ACCESS, procID=procID, anomaly=False)
         )
+    if all([x >= DES_ACCESSES for x in tot_accesses]):
+        global DOWNLOAD
+        DOWNLOAD = True
     return "Entered the CS"
 
 @app.route('/leave_cs', methods=['POST'])
@@ -82,13 +88,20 @@ def leave_cs():
     procID = data.get('procID')  # Access a specific value by key
     processesCS[int(procID) - 1] -= 1
     inside -= 1
+    events_register.insert_event(
+        Event(evtype=EventType.LEAVE, procID=procID, anomaly=False)
+    )
     return "Left the CS"
 
 @app.route('/results_file')
 def download_results():
     # flush the content of the event register into a csv file and send
     # to the browser for download
-    pass
+    events_register.close_register()
+    events_register.write_on_csv(result_file)
+    filepath = os.path.join(os.getcwd(), result_file)
+    return send_file(filepath, as_attachment=True, download_name=result_file)
+
 
 
 if __name__ == '__main__':
