@@ -1,27 +1,72 @@
 import time
 import select
 from enum import Enum
-from typing import List
+from typing import List, Set
 import requests
+from math import sqrt
+from copy import deepcopy
 
 from common.common import create_message, read_message, format_message
 
+class MSGType(Enum):
+    REQ = 10
+    ACK = 20
+    REL = 30
+
+    def __str__(self):
+        return self.name
+
 class State(Enum):
-    NCS = 0
-    REQUESTING = 1
-    CS = 2
+    RELEASED = 1
+    WANTED = 2
+    HELD = 3
+
+    def __str__(self):
+        return self.name
+    
+def get_voting_set(procID: int, peers: List[int]) -> Set[int]:
+    
+    processes = deepcopy(peers)
+    processes.append(procID)
+    processes.sort()
+    n = len(processes)
+    nsq = int(sqrt(n))
+    print(n, nsq)
+    matrix = []
+    k = 0
+    for i in range(nsq):
+        row = []
+        # print(k)
+        for j in range(nsq):
+            # print(i,j)
+            row.append(processes[k])
+            k  += 1
+        matrix.append(row)
+    voting = set()
+    proc_i = (procID - 1) // nsq
+    proc_j = (procID-1) % nsq
+    # print(i,j)
+    for i in range(nsq):
+        for j in range(nsq):
+            if i == proc_i or j == proc_j:
+                voting.add(matrix[i][j])
+    # print(matrix)
+    return voting
 
 
 REQUEST = 77
 REPLY = 88
 ENTER_CS = 99
 
-def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
+def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     replies = 0
-    state = State.NCS
-    Q = []
-    num = 1
-    last_req = num
+    # slides variables
+    state = State.RELEASED
+    voted = False
+    V = get_voting_set(my_id, peers)
+    replies = []
+    pending = []
+    
     enters = []
 
     router_sock.setblocking(0)

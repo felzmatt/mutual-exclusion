@@ -19,8 +19,12 @@ def get_peers(my_id: int, num: int):
     return [i for i in range(1,num+1) if i != my_id]
 
 NUM = int(os.getenv("NUM_PROC"))
+PROTOCOL = os.getenv("PROTOCOL")
 
 if __name__ == "__main__":
+    if PROTOCOL not in ["RA","M"]:
+        print("Unknown protocol, exiting.")
+        sys.exit(1)
     # print(os.environ.get("HOSTNAME"))
     # my_id = int(os.environ.get("HOSTNAME").split("_")[1])
     my_id = int(sys.argv[1])
@@ -49,4 +53,5 @@ if __name__ == "__main__":
         
         time.sleep(2)
         """
-    ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+    if PROTOCOL == "RA":
+        ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)

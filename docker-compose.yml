@@ -26,6 +26,7 @@ services:
     environment:
       - INDEX=${INDEX:-0}
       - NUM_PROC=${NUM_PROC}
+      - PROTOCOL=${PROTOCOL}
     entrypoint: /app/entrypoint.sh
     depends_on:
       - master
