@@ -62,21 +62,22 @@ def enter_cs():
     global inside
     data = request.form
     procID = data.get('procID')  # Access a specific value by key
-    processesCS[int(procID) - 1] += 1
-    tot_accesses[int(procID) - 1] += 1
-    inside += 1
-    if inside > 1:
-        errors += 1
-        events_register.insert_event(
-            Event(evtype=EventType.ACCESS, procID=procID, anomaly=True)
-        )
-    else:
-        events_register.insert_event(
-            Event(evtype=EventType.ACCESS, procID=procID, anomaly=False)
-        )
-    if all([x >= DES_ACCESSES for x in tot_accesses]):
-        global DOWNLOAD
-        DOWNLOAD = True
+    if processesCS[int(procID) - 1] == 0:
+        processesCS[int(procID) - 1] += 1
+        tot_accesses[int(procID) - 1] += 1
+        inside += 1
+        if inside > 1:
+            errors += 1
+            events_register.insert_event(
+                Event(evtype=EventType.ACCESS, procID=procID, anomaly=True)
+            )
+        else:
+            events_register.insert_event(
+                Event(evtype=EventType.ACCESS, procID=procID, anomaly=False)
+            )
+        if all([x >= DES_ACCESSES for x in tot_accesses]):
+            global DOWNLOAD
+            DOWNLOAD = True
     return "Entered the CS"
 
 @app.route('/leave_cs', methods=['POST'])

@@ -6,7 +6,7 @@ import requests
 from math import sqrt
 from copy import deepcopy
 
-from common.common import create_message, read_message, format_message
+from common.common import create_message, read_message, format_message, display_message
 
 class MSGType(Enum):
     REQ = 10
@@ -55,6 +55,8 @@ def get_voting_set(procID: int, peers: List[int]) -> Set[int]:
 
 def select_next(pending: List[int]) -> int:
     return pending.pop(0)
+
+
 
 
 REQ = 10
