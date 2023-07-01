@@ -11,7 +11,7 @@ from common.config import CONFIG
 
 def choose_elected():
     elected = set()
-    k = random.randint(1, NUM//4)
+    k = random.randint(1, NUM)
     while len(elected) < k:
         e = random.randint(1, NUM)
         if e not in elected:
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     while True:
         # select guys who must enter cs
         now = time.time()
-        if first or (now - orders[-1]) > 5.0:
+        if first or (now - orders[-1]) > 2.0:
             
             first = False
             cs_elected = choose_elected()

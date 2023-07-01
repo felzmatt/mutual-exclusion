@@ -149,19 +149,12 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
                     voted = False
 
             # upon receive ENTER_CS
-            elif msg_type == ENTER_CS:
+            elif msg_type == ENTER_CS and state == State.RELEASED:
                 state = State.WANTED
-                #print(f"I miei vicini sono {V}")
                 for peer in V:
-
-                    #print(f"mando a {peer}")
-
                     if True or peer != my_id:
-                        #print(f"Asking REQ to {peer}")
                         req = create_message(sender=my_id, receiver=peer, msg_type=REQ, ts=0)
-                        #print(f"messaggio per {peer} creato")
                         router_sock.sendall(req)
-                        #print(f"fatto a {peer}")
         except Exception as e:
             pass
         time.sleep(1)

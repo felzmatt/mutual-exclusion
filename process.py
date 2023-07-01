@@ -4,11 +4,12 @@ import socket
 import time
 import random
 
-from common.common import create_message, read_message, format_message
+from common.common import create_message
 from common.config import CONFIG
 
 from algorithms.ricart_agrawala import ricart_agrawala
-from algorithms.maekawa import maekawa
+# from algorithms.maekawa import maekawa
+from algorithms.new_maek import maekawa as nm
 
 
 def connect_router(router_host, router_port):
@@ -60,4 +61,4 @@ if __name__ == "__main__":
         ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
     else:
         # print("Starting maekawa protocol")
-        maekawa(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+        nm(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
