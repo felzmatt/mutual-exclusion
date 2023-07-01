@@ -7,9 +7,10 @@ import random
 from common.common import create_message
 from common.config import CONFIG
 
-from algorithms.ricart_agrawala import ricart_agrawala
+# from algorithms.ricart_agrawala import ricart_agrawala
 # from algorithms.maekawa import maekawa
-from algorithms.new_maek import maekawa as nm
+from algorithms.new_maek import maekawa
+from algorithms.new_ricart import ricart_agrawala
 
 
 def connect_router(router_host, router_port):
@@ -22,6 +23,7 @@ def get_peers(my_id: int, num: int):
 
 NUM = int(os.getenv("NUM_PROC"))
 PROTOCOL = os.getenv("PROTOCOL")
+CS_TIME = int(os.getenv("CS_TIME"))
 
 if __name__ == "__main__":
     if PROTOCOL not in ["RA","M"]:
@@ -61,4 +63,4 @@ if __name__ == "__main__":
         ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
     else:
         # print("Starting maekawa protocol")
-        nm(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+        maekawa(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)

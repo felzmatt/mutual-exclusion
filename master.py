@@ -1,22 +1,37 @@
 import sys
 import os
+import queue
+import threading
 import socket
 import select
 import random
 import time
 
-from common.common import create_message, read_message
+from typing import Union, List
+
+from common.common import create_message, read_message, Message, decode_message
 
 from common.config import CONFIG
 
-def choose_elected():
-    elected = set()
-    k = random.randint(1, NUM)
-    while len(elected) < k:
-        e = random.randint(1, NUM)
-        if e not in elected:
-            elected.add(e)
-    return elected
+BUFSIZE = 16
+
+def listen_incoming(router_sock, messages_queue: queue.Queue):
+    while True:
+        data = router_sock.recv(BUFSIZE)
+        msg = decode_message(data=data)
+        # print(f"Received {msg}")
+        messages_queue.put(msg)
+
+def deliver(messages: queue.Queue) -> Union[Message,None]:
+    try:
+        msg = messages.get(block=False, timeout=1)
+        return msg
+    except queue.Empty:
+        return None
+
+def send(router_sock, message: Message):
+    # print(f"Sending {message}")
+    router_sock.send(message.pack())
 
 def create_listener(router_host: str, router_port: int):
     sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -48,25 +63,19 @@ if __name__ == "__main__":
                 processes[sender] = sock
     
     print("I know these guys", processes)
+    messages = queue.Queue()
+    listeners: List[threading.Thread]= []
+    
+    for proc_sock in processes.values():
+        listeners.append(threading.Thread(target=listen_incoming, args=(proc_sock, messages)))
+    
+    for listener in listeners:
+        listener.start()
 
-    orders = [time.time()]
-    first = True
     while True:
-        # select guys who must enter cs
-        now = time.time()
-        if first or (now - orders[-1]) > 2.0:
-            
-            first = False
-            cs_elected = choose_elected()
-            print(f"Send orders to some processes {cs_elected}")
-            for proc in cs_elected:
-                order = create_message(sender=0, receiver=proc, msg_type=99, ts=0)
-                processes[proc].sendall(order)
-            cs_elected.clear()
-            orders.append(time.time())
-        readable, _, _ = select.select(connections, [], [])
-        for sock in readable:
-            raw_data = sock.recvfrom(16)
-            sender, receiver, msg_type, ts = read_message(raw_data[0])
-            # routing
-            processes[receiver].sendall(raw_data[0])
+        try:
+            msg = deliver(messages=messages)
+            if msg:
+                send(processes[msg.receiver], msg)
+        except Exception as e:
+            pass

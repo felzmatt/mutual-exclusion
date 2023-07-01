@@ -27,6 +27,7 @@ services:
       - INDEX=${INDEX:-0}
       - NUM_PROC=${NUM_PROC}
       - PROTOCOL=${PROTOCOL}
+      - CS_TIME=${CS_TIME}
     entrypoint: /app/entrypoint.sh
     depends_on:
       - master

@@ -12,9 +12,9 @@ from copy import deepcopy
 from common.common import Message, decode_message
 
 class State(Enum):
-    RELEASED = 0
-    WANTED = 1
-    HELD = 2
+    NCS = 0
+    REQUESTING = 1
+    CS = 2
 
 def get_voting_set(procID: int, peers: List[int]) -> Set[int]:
     
@@ -48,13 +48,12 @@ def get_voting_set(procID: int, peers: List[int]) -> Set[int]:
 def select_next(pending: List[int]) -> int:
     return pending.pop(0)
 
+def get_interested(p: int = 0.5):
+    return secrets.randbelow(100) < 100*p
+
 # messages types
 REQ = 10
 ACK = 20
-REL = 30
-
-def get_interested(p: int = 0.5):
-    return secrets.randbelow(100) < 100*p
 
 BUFSIZE = 16
 def listen_incoming(router_sock, messages_queue: queue.Queue):
@@ -75,77 +74,71 @@ def send(router_sock, message: Message):
     # print(f"Sending {message}")
     router_sock.send(message.pack())
 
-def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
+def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     
     #######################
     #        INIT         #
     #######################
-    state = State.RELEASED
-    voted = False
-    V = get_voting_set(my_id, peers)
+    state = State.NCS
     replies = 0
-    pending = []
+    Q = []
+    num = 1
+    last_req = num
     
     messages = queue.Queue()
     listener = threading.Thread(target=listen_incoming, args=(router_sock, messages))
     listener.start()
+    
     last_enter = 0
     while True:
-        
-        if state == state.RELEASED:
+        # print(f"    Status {state} replies {replies}")
+        if state == State.NCS:
             if get_interested(p=0.25):
-                state = state.WANTED
-                for peer in V:
-                    req = Message(sender=my_id, receiver=peer, msg=REQ)
+                print("I want CS")
+                state = State.REQUESTING
+                num += 1
+                last_req = num
+                for peer in peers:
+                    req = Message(sender=my_id, receiver=peer, msg=REQ, ts=num)
                     send(router_sock, req)
         
-        if state == State.WANTED:
-            if replies == len(V):
-                    # access CS
-                    state = State.HELD
-                    print("CS")
-                    requests.post("http://cs:5000/enter_cs",data={"procID":my_id})
-                    last_enter = time.time()
+        elif state == State.REQUESTING:
+            if replies == len(peers):
+                # access CS
+                state = State.CS
+                print("CS")
+                requests.post("http://cs:5000/enter_cs",data={"procID":my_id})
+                last_enter = time.time()
         
-        elif state == State.HELD:
+        elif state == State.CS:
             if time.time() - last_enter > cs_time:
                 # release the cs
                 print("Leave")
-                state = State.RELEASED
+                state = State.NCS
                 replies = 0
                 r = requests.post("http://cs:5000/leave_cs",data={"procID":my_id})
-                for peer in V:
-                    rel = Message(sender=my_id, receiver=peer, msg=REL)
-                    send(router_sock, rel)
+                for req in Q:
+                    ack = Message(sender=my_id, receiver=req[1], msg=ACK, ts=num)
+                    send(router_sock, ack)
+                Q.clear()
         try:
             msg = deliver(messages=messages)
             
             if msg:
                 print(msg)
-                
                 # upon receipt of REQ
                 if msg.msg == REQ:
-                    if state == State.HELD or voted:
-                        pending.append(msg.sender)
+                    if state == State.CS or (state == State.REQUESTING and (last_req, my_id) < (msg.ts, msg.sender)):
+                        Q.append((msg.ts, msg.sender))
                     else:
                         ack = Message(sender=my_id, receiver=msg.sender, msg=ACK)
                         send(router_sock, ack)
-                        voted = True
+                    num = max(msg.ts, num)
+                
                 # upon receipt of ACK
-                elif msg.msg == ACK:
+                if msg.msg == ACK:
                     replies += 1
-                    
-                # upon receipt of REL
-                elif msg.msg == REL:
-                    if len(pending) > 0:
-                        candidate = select_next(pending)
-                        ack = Message(sender=my_id, receiver=candidate, msg=ACK)
-                        send(router_sock, ack)
-                        voted = True
-                    else:
-                        voted = False
-
-
+                
         except Exception as e:
             # nothing to read go on
             pass
