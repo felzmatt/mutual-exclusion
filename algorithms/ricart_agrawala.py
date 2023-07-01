@@ -26,6 +26,8 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
 
     router_sock.setblocking(0)
     router_sock.settimeout(1)
+
+    
     
     # event loopS
     while True:
@@ -63,7 +65,10 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
         try:
             raw_data = router_sock.recv(16)
             sender, receiver, msg_type, ts = read_message(msg=raw_data)
-            print(f"Received {format_message(sender=sender, receiver=receiver, msg_type=msg_type, ts=ts)}")
+
+            # don't print messages from master
+            if sender != 0:
+                print(f"Received {format_message(sender=sender, receiver=receiver, msg_type=msg_type, ts=ts)}")
         
             # upon receipt of REQUEST
             if msg_type == REQUEST:

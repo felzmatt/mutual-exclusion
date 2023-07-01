@@ -1,24 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="2">
+    <!--<meta http-equiv="refresh" content="2">-->
 </head>
 <body>
     <h1>Process Status</h1>
+    <p>Number of processes: <span id="num-processes"></span></p>
+    <p>Desired accesses: <span id="des-accesses"></span></p>
     <p>Processes: <span id="processes"></span></p>
+    <p>Processes accesses: <span id="tot-accesses"></span></p>
     <p>Errors: <span id="errors"></span></p>
+    <button disabled id="download" onclick="downloadResults('/results_file')">Results</button>
+    <table id="total-accesses">
+
+    </table>
 
     <script>
         // Function to fetch the data from the server and update the values
+        function initData() {
+            fetch('/init')
+            .then(response => response.json())
+            .then(data => {
+                // document.getElementById('processes').textContent = data.processes;
+                document.getElementById('num-processes').textContent = data.num_processes;
+                document.getElementById('des-accesses').textContent = data.des_accesses;
+                document.getElementById('tot-accesses').textContent = data.tot_accesses;
+
+            })
+        }
         function updateData() {
             fetch('/data')
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('processes').textContent = data.processes;
                     document.getElementById('errors').textContent = data.errors;
+                    document.getElementById('tot-accesses').textContent = data.tot_accesses;
+                    if (data.download) {
+                        document.getElementById('download').removeAttribute('disabled');
+                    }
                 });
         }
 
+        function downloadResults(url) {
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = '';
+            link.click();
+        }
+        // Init first data
+        initData();
         // Call the function immediately to populate initial data
         updateData();
 

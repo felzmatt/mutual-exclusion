@@ -3,6 +3,7 @@ import os
 import socket
 import select
 import random
+import time
 
 from common.common import create_message, read_message
 
@@ -47,14 +48,22 @@ if __name__ == "__main__":
                 processes[sender] = sock
     
     print("I know these guys", processes)
-    
+
+    orders = [time.time()]
+    first = True
     while True:
         # select guys who must enter cs
-        cs_elected = choose_elected()
-        for proc in cs_elected:
-            order = create_message(sender=0, receiver=proc, msg_type=99, ts=0)
-            processes[proc].sendall(order)
-        cs_elected.clear()
+        now = time.time()
+        if first or (now - orders[-1]) > 2.0:
+            
+            first = False
+            cs_elected = choose_elected()
+            print(f"Send orders to some processes {cs_elected}")
+            for proc in cs_elected:
+                order = create_message(sender=0, receiver=proc, msg_type=99, ts=0)
+                processes[proc].sendall(order)
+            cs_elected.clear()
+            orders.append(time.time())
         readable, _, _ = select.select(connections, [], [])
         for sock in readable:
             raw_data = sock.recvfrom(16)

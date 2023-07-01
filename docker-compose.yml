@@ -6,6 +6,7 @@ services:
       - 5000:5000
     environment:
       - NUM_PROC=${NUM_PROC}
+      - DES_ACCESSES=${DES_ACCESSES}
     
   
   master:
@@ -25,6 +26,7 @@ services:
     environment:
       - INDEX=${INDEX:-0}
       - NUM_PROC=${NUM_PROC}
+      - PROTOCOL=${PROTOCOL}
     entrypoint: /app/entrypoint.sh
     depends_on:
       - master

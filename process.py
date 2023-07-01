@@ -4,10 +4,12 @@ import socket
 import time
 import random
 
-from common.common import create_message, read_message, format_message
+from common.common import create_message
 from common.config import CONFIG
 
 from algorithms.ricart_agrawala import ricart_agrawala
+# from algorithms.maekawa import maekawa
+from algorithms.new_maek import maekawa as nm
 
 
 def connect_router(router_host, router_port):
@@ -19,13 +21,19 @@ def get_peers(my_id: int, num: int):
     return [i for i in range(1,num+1) if i != my_id]
 
 NUM = int(os.getenv("NUM_PROC"))
+PROTOCOL = os.getenv("PROTOCOL")
 
 if __name__ == "__main__":
+    if PROTOCOL not in ["RA","M"]:
+        print("Unknown protocol, exiting.")
+        sys.exit(1)
     # print(os.environ.get("HOSTNAME"))
     # my_id = int(os.environ.get("HOSTNAME").split("_")[1])
+    # print("connecting master ...")
     my_id = int(sys.argv[1])
     router_sock = connect_router(router_host=CONFIG["ROUTER_HOST"], router_port=CONFIG["ROUTER_PORT"])
     peers = get_peers(my_id=my_id, num=NUM)
+    # print("connected")
 
     # make master know about me
     msg = create_message(sender=my_id, receiver=0, msg_type=0, ts=0)
@@ -49,4 +57,8 @@ if __name__ == "__main__":
         
         time.sleep(2)
         """
-    ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+    if PROTOCOL == "RA":
+        ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+    else:
+        # print("Starting maekawa protocol")
+        nm(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
