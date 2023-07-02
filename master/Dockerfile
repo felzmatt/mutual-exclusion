@@ -9,13 +9,14 @@ WORKDIR /app
 # COPY requirements.txt .
 
 # Install the Python dependencies
-# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir numpy
 
 # copy dependencies
 COPY ../common /app/common
 
 # Copy executables
 COPY ../master.py /app
+COPY ../events.py /app
 
 
 CMD ["python3", "-u", "master.py"]

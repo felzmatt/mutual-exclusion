@@ -1,5 +1,18 @@
 import struct
 
+# from master
+ACCESS_ORDER: int = 21
+STOP_ORDER: int = 22
+# to master
+CS_REQUESTED: int = 151
+CS_ENTERED: int = 153
+CS_RELEASED: int = 155
+STOPPED: int = 157
+# among peers
+REQUEST: int = 1
+ACK: int = 2
+RELEASE: int = 3
+
 class Message:
     FMT = "!IIII"
     def __init__(self, sender: int, receiver: int, msg: int, ts: int = 0):

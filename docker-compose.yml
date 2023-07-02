@@ -15,6 +15,11 @@ services:
       dockerfile: ./master/Dockerfile
     environment:
       - NUM_PROC=${NUM_PROC}
+      - EXP_TIME=${EXP_TIME}
+      - AUTOMODE=${AUTOMODE}
+      - LOAD=${LOAD}
+    volumes:
+      - "./data/automatic:/app/data"
     depends_on:
       - cs
   
@@ -27,6 +32,8 @@ services:
       - INDEX=${INDEX:-0}
       - NUM_PROC=${NUM_PROC}
       - PROTOCOL=${PROTOCOL}
+      - CS_TIME=${CS_TIME}
+      - AUTOMODE=${AUTOMODE}
     entrypoint: /app/entrypoint.sh
     depends_on:
       - master
