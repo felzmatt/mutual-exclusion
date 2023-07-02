@@ -9,9 +9,10 @@ from common.config import CONFIG
 
 # from algorithms.ricart_agrawala import ricart_agrawala
 # from algorithms.maekawa import maekawa
-from algorithms.new_maek import maekawa
+# from algorithms.new_maek import maekawa
 # from algorithms.new_ricart import ricart_agrawala
 from algorithms.modular_ra import ricart_agrawala
+from algorithms.modular_ma import maekawa
 
 
 def connect_router(router_host, router_port):
