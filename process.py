@@ -60,7 +60,7 @@ if __name__ == "__main__":
         time.sleep(2)
         """
     if PROTOCOL == "RA":
-        ricart_agrawala(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+        ricart_agrawala(cs_time=CS_TIME, my_id=my_id, peers=peers, router_sock=router_sock)
     else:
         # print("Starting maekawa protocol")
-        maekawa(cs_time=4, my_id=my_id, peers=peers, router_sock=router_sock)
+        maekawa(cs_time=CS_TIME, my_id=my_id, peers=peers, router_sock=router_sock)

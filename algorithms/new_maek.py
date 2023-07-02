@@ -93,7 +93,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     while True:
         
         if state == State.RELEASED:
-            if get_interested(p=0.05):
+            if get_interested(p=0.01):
                 state = State.WANTED
                 for peer in V:
                     req = Message(sender=my_id, receiver=peer, msg=REQ)

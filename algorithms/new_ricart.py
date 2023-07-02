@@ -93,7 +93,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
     while True:
         # print(f"    Status {state} replies {replies}")
         if state == State.NCS:
-            if get_interested(p=0.25):
+            if get_interested(p=0.01):
                 print("I want CS")
                 state = State.REQUESTING
                 num += 1
