@@ -175,5 +175,5 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
         except Exception as e:
             # nothing to read go on
             pass
-        time.sleep(500 / 1000)
+        time.sleep(1)
 

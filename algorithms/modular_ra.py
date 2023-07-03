@@ -139,5 +139,5 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
         except Exception as e:
             # nothing to read go on
             pass
-        time.sleep(500 / 1000)
+        time.sleep(1)
 
