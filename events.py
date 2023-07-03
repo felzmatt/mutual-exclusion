@@ -84,5 +84,5 @@ class EventRegister:
             writer.writerows([ev.tuplify() for ev in self.cs_events])
 
             # write closing
-            writer.writerow([None, "END", Event.counter + 1, self.end, None, None, None])
+            writer.writerow([0, "END", Event.counter + 1, self.end, None, None, None])
         
