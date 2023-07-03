@@ -97,7 +97,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                 replies = 0
                 r = requests.post("http://cs:5000/leave_cs",data={"procID":my_id})
                 for req in Q:
-                    ack = Message(sender=my_id, receiver=req[1], msg=ACK, ts=num)
+                    ack = Message(sender=my_id, receiver=req[1], msg=ACK)
                     send(router_sock, ack)
                 Q.clear()
                 cs_rel = Message(sender=my_id, receiver=0, msg=CS_RELEASED)
