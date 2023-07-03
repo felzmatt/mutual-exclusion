@@ -6,9 +6,6 @@ services:
       - 5000:5000
     environment:
       - NUM_PROC=${NUM_PROC}
-      - DES_ACCESSES=${DES_ACCESSES}
-    
-  
   master:
     build:
       context: ./
