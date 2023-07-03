@@ -2,6 +2,25 @@
 <html>
 <head>
     <!--<meta http-equiv="refresh" content="2">-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Adjust the cell size as needed */
+            grid-gap: 5px; /* Adjust the gap between cells */
+        }
+
+        .grid-item {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .grid-item.active {
+            background-color: yellow; /* Adjust the desired color */
+        }
+    </style>
 </head>
 <body>
     <h1>Process Status</h1>
@@ -11,9 +30,8 @@
     <p>Processes accesses: <span id="tot-accesses"></span></p>
     <p>Errors: <span id="errors"></span></p>
     <button id="download" onclick="downloadResults('/results_file')">Results</button>
-    <table id="total-accesses">
+    <div class="grid-container" id="grid-container"></div>
 
-    </table>
 
     <script>
         // Function to fetch the data from the server and update the values
@@ -38,8 +56,41 @@
                     if (data.download) {
                         document.getElementById('download').removeAttribute('disabled');
                     }
+
+                    updateGrid(data.processes);
                 });
         }
+
+        function updateGrid(processes) {
+            var gridContainer = document.getElementById('grid-container');
+
+            // Clear the existing grid
+            gridContainer.innerHTML = '';
+
+            // Calculate the square root of the number of processes
+            var N = Math.sqrt(processes.length);
+
+            // Create grid items for each process
+            for (var i = 0; i < processes.length; i++) {
+                var gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+
+                // Set the text content of the grid item
+                gridItem.textContent = processes[i];
+
+                // Add the 'active' class if the process value is 1
+                if (processes[i] === 1) {
+                    gridItem.classList.add('active');
+                }
+
+                // Append the grid item to the container
+                gridContainer.appendChild(gridItem);
+            }
+
+            // Set the grid container styles dynamically based on the number of items
+            gridContainer.style.gridTemplateColumns = 'repeat(' + N + ', minmax(50px, 1fr))';
+        }
+
 
         function downloadResults(url) {
             var link = document.createElement('a');
@@ -53,7 +104,7 @@
         updateData();
 
         // Set interval to call the function every 4 seconds
-        setInterval(updateData, 4000);
+        setInterval(updateData, 2500);
     </script>
 </body>
 </html>
