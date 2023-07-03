@@ -78,11 +78,11 @@ class EventRegister:
             # write row header
             writer.writerow(header)
             # write start event
-            writer.writerow([None, "START", 0, self.start, self.humandate_start, False])
+            writer.writerow([0, "START", 0, self.start, None, None, None])
 
             # write actual data
             writer.writerows([ev.tuplify() for ev in self.cs_events])
 
             # write closing
-            writer.writerow([None, "END", Event.counter + 1, self.end, self.humandate_end, False])
+            writer.writerow([None, "END", Event.counter + 1, self.end, None, None, None])
         
