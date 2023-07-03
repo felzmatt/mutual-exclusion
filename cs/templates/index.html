@@ -29,7 +29,7 @@
     <p>Processes: <span id="processes"></span></p>
     <p>Processes accesses: <span id="tot-accesses"></span></p>
     <p>Errors: <span id="errors"></span></p>
-    <button id="download" onclick="downloadResults('/results_file')">Results</button>
+    <!--<button id="download" onclick="downloadResults('/results_file')">Results</button>-->
     <div class="grid-container" id="grid-container"></div>
 
 
@@ -53,9 +53,9 @@
                     document.getElementById('processes').textContent = data.processes;
                     document.getElementById('errors').textContent = data.errors;
                     document.getElementById('tot-accesses').textContent = data.tot_accesses;
-                    if (data.download) {
-                        document.getElementById('download').removeAttribute('disabled');
-                    }
+                    // if (data.download) {
+                    //     document.getElementById('download').removeAttribute('disabled');
+                    // }
 
                     updateGrid(data.processes);
                 });

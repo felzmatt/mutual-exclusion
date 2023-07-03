@@ -13,9 +13,9 @@ def generate_timestamp():
 app = Flask(__name__)
 
 NUM = int(os.getenv("NUM_PROC"))
-DES_ACCESSES = int(os.getenv("DES_ACCESSES"))
+# DES_ACCESSES = int(os.getenv("DES_ACCESSES"))
 
-DOWNLOAD = False
+# DOWNLOAD = False
 
 # This class contains data that will be flushed into a csv file for analysys
 events_register = EventRegister()
@@ -36,7 +36,7 @@ def index():
 def init_data():
     data = {
         'num_processes': NUM,
-        'des_accesses': DES_ACCESSES,
+        # 'des_accesses': DES_ACCESSES,
         'tot_accesses': list(tot_accesses)
     }
     return jsonify(data)
@@ -51,7 +51,7 @@ def get_data():
         'processes': list(processesCS),
         'errors': errors,
         'tot_accesses': tot_accesses,
-        'download': DOWNLOAD
+        # 'download': DOWNLOAD
     }
     return jsonify(data)
 
@@ -75,9 +75,11 @@ def enter_cs():
             events_register.insert_event(
                 Event(evtype=EventType.ACCESS, procID=procID, anomaly=False)
             )
+        """
         if all([x >= DES_ACCESSES for x in tot_accesses]):
             global DOWNLOAD
             DOWNLOAD = True
+        """
     return "Entered the CS"
 
 @app.route('/leave_cs', methods=['POST'])
