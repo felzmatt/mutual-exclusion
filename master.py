@@ -22,10 +22,28 @@ NUM = int(os.getenv("NUM_PROC"))
 AUTOMODE = bool(int(os.getenv("AUTOMODE"))) # it is 0 or 1
 LOAD = float(os.getenv("LOAD")) # it has sense only if AUTOMODE
 EXP_TIME = int(os.getenv("EXP_TIME"))
+PROTOCOL = os.getenv("PROTOCOL")
+CS_TIME = int(os.getenv("CS_TIME"))
 
 ######################################
 #       AUXILIARY FUNCTIONS          #
 ######################################
+def build_results_filename():
+    
+    protocol = "bugged" # for demo purpose
+    if PROTOCOL == "RA":
+        protocol = "ricartagrawala"
+    elif PROTOCOL == "M":
+        protocol = "maekawa"
+    else:
+        protocol = "unknown"
+    mode = f"load{LOAD}"
+    
+    if AUTOMODE:
+        mode = "auto"
+    
+    return f"{protocol}_N{NUM}_{mode}_CSTIME{CS_TIME}_sign-{generate_random_string(10)}.csv"
+
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits
     random_string = ''.join(secrets.choice(characters) for _ in range(length))
@@ -134,6 +152,7 @@ class Master:
     
     def mainloop(self):
         register = EventRegister()
+        results = build_results_filename()
         messages = queue.Queue()
         listeners: List[threading.Thread]= []
         stopped = []
@@ -161,9 +180,9 @@ class Master:
             if stop_sent and (len(stopped) == NUM):
                 print("closing")
                 register.close_register()
-                filepath = "./data/"+generate_random_string(10)
-                register.write_on_csv(filepath)
-                print(f"written on {filepath}")
+                results = "./data/"+results
+                register.write_on_csv(results)
+                print(f"written on {results}")
                 sys.exit(0)
             try:
                 msg = deliver(messages=messages)

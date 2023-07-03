@@ -18,6 +18,8 @@ services:
       - EXP_TIME=${EXP_TIME}
       - AUTOMODE=${AUTOMODE}
       - LOAD=${LOAD}
+      - PROTOCOL=${PROTOCOL}
+      - CS_TIME=${CS_TIME}
     volumes:
       - "./data/automatic:/app/data"
     depends_on:
