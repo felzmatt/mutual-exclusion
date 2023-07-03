@@ -106,7 +106,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
             msg = deliver(messages=messages)
             
             if msg:
-                print(msg)
+                # print(msg)
                 if msg.msg == STOP_ORDER:
                     stopped = Message(sender=my_id, receiver=0, msg=STOPPED)
                     send(router_sock, stopped)
@@ -139,5 +139,5 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
         except Exception as e:
             # nothing to read go on
             pass
-        time.sleep(1)
+        time.sleep(500 / 1000)
 
