@@ -8,8 +8,6 @@ import os
 
 from enum import Enum
 from typing import List, Set, Union
-from math import sqrt
-from copy import deepcopy
 
 from common.common import Message, decode_message, ACCESS_ORDER, STOP_ORDER, RELEASE, REQUEST, ACK, CS_ENTERED, CS_RELEASED, CS_REQUESTED, STOPPED
 
@@ -29,7 +27,6 @@ def listen_incoming(router_sock, messages_queue: queue.Queue):
     while True:
         data = router_sock.recv(BUFSIZE)
         msg = decode_message(data=data)
-        # print(f"Received {msg}")
         messages_queue.put(msg)
 
 def deliver(messages: queue.Queue) -> Union[Message,None]:
@@ -40,7 +37,6 @@ def deliver(messages: queue.Queue) -> Union[Message,None]:
         return None
 
 def send(router_sock, message: Message):
-    # print(f"Sending {message}")
     router_sock.send(message.pack())
 
 def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
