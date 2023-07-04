@@ -166,6 +166,7 @@ class Master:
         
         stop_sent = False
         if not self.automode:
+            print(f"Sending order to {self.participants}")
             for part in self.participants:
                 access_order = Message(sender=0, receiver=part, msg=ACCESS_ORDER)
                 send(self.processes[part], access_order)
