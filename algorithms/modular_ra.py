@@ -59,6 +59,7 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
     listener.start()
     
     last_enter = 0
+    last_polling = time.time()
     stopped = False
     automode = bool(int(os.getenv("AUTOMODE")))
     while True:
@@ -68,16 +69,19 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
                 sys.exit(0)
         # print(f"    Status {state} replies {replies}")
         if automode and state == State.NCS:
-            if get_interested(p=0.01):
-                print("I want CS")
-                state = State.REQUESTING
-                num += 1
-                last_req = num
-                for peer in peers:
-                    req = Message(sender=my_id, receiver=peer, msg=REQUEST, ts=num)
-                    send(router_sock, req)
-                cs_req = Message(sender=my_id, receiver=0, msg=CS_REQUESTED)
-                send(router_sock, cs_req)
+            if time.time() - last_polling > 1:
+                interested = get_interested(p=0.01)
+                last_polling = time.time()
+                if interested:
+                    print("I want CS")
+                    state = State.REQUESTING
+                    num += 1
+                    last_req = num
+                    for peer in peers:
+                        req = Message(sender=my_id, receiver=peer, msg=REQUEST, ts=num)
+                        send(router_sock, req)
+                    cs_req = Message(sender=my_id, receiver=0, msg=CS_REQUESTED)
+                    send(router_sock, cs_req)
         
         elif state == State.REQUESTING:
             if replies == len(peers):
@@ -139,5 +143,5 @@ def ricart_agrawala(cs_time: int, my_id: int, peers: List[int], router_sock) -> 
         except Exception as e:
             # nothing to read go on
             pass
-        time.sleep(1)
+        time.sleep(400 / 1000)
 

@@ -3,8 +3,8 @@ import datetime
 import csv
 from enum import Enum
 
-def real_clock() -> int:
-    return int(time.time())
+def real_clock():
+    return time.time()
 
 class EventType(Enum):
     START = 10

@@ -5,8 +5,8 @@ from enum import Enum
 
 from common.common import Message, REQUEST, RELEASE, ACK
 
-def get_now() -> int:
-    return int(time.time())
+def get_now():
+    return time.time()
 
 class EventType(Enum):
     START = 10

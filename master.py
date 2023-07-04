@@ -90,7 +90,7 @@ def listen_incoming(router_sock, messages_queue: queue.Queue, register: EventReg
                 
                 evtype = EventType.PROC_STOPPED
                 stopped.append(msg.sender)
-                print(stopped)
+                # print(stopped)
             else:
                 print("Strange message" + str(msg))
                 evtype = None
@@ -133,7 +133,7 @@ class Master:
                 sender, receiver, msg_type, ts = read_message(msg=raw_data[0])
                 if sender not in self.processes:
                     self.processes[sender] = sock
-        print("I know these guys", self.processes)
+        # print("I know these guys", self.processes)
     
     def start_time(self):
         self.start = time.time()

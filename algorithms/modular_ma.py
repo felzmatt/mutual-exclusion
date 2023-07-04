@@ -90,6 +90,7 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
     listener.start()
     
     last_enter = 0
+    last_polling = time.time()
     stopped = False
     automode = bool(int(os.getenv("AUTOMODE")))
     while True:
@@ -99,15 +100,18 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
                 sys.exit(0)
         
         if automode and state == State.NCS:
-            if get_interested(p=0.01):
-                print("I want CS")
-                state = State.REQUESTING
+            if time.time() - last_polling > 1:
+                interested = get_interested(p=0.01)
+                last_polling = time.time()
+                if interested:
+                    print("I want CS")
+                    state = State.REQUESTING
                 
-                for peer in V:
-                    req = Message(sender=my_id, receiver=peer, msg=REQUEST)
-                    send(router_sock, req)
-                cs_req = Message(sender=my_id, receiver=0, msg=CS_REQUESTED)
-                send(router_sock, cs_req)
+                    for peer in V:
+                        req = Message(sender=my_id, receiver=peer, msg=REQUEST)
+                        send(router_sock, req)
+                    cs_req = Message(sender=my_id, receiver=0, msg=CS_REQUESTED)
+                    send(router_sock, cs_req)
         
         elif state == State.REQUESTING:
             if replies == len(V):
@@ -175,5 +179,5 @@ def maekawa(cs_time: int, my_id: int, peers: List[int], router_sock) -> None:
         except Exception as e:
             # nothing to read go on
             pass
-        time.sleep(1)
+        time.sleep(400 / 1000)
 
